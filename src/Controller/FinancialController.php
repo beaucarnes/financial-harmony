@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\FinancialService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,9 +17,9 @@ class FinancialController extends AbstractController
     ) {}
 
     #[Route('/', name: 'homepage')]
-    public function homepage(): Response
+    public function homepage(#[Autowire(param: 'kernel.project_dir')] string $projectDir): Response
     {
-        $html = file_get_contents(__DIR__ . '/../../public/index.html');
+        $html = file_get_contents($projectDir . '/public/index.html');
         return new Response($html, status: 200, headers: ['Content-Type' => 'text/html']);
     }
 
@@ -32,17 +33,17 @@ class FinancialController extends AbstractController
         return $this->json(['success' => false, 'message' => $message], $status);
     }
 
-    #[Route('/api/financial/accounts', methods: ['POST'])]
+    #[Route('/api/harmony/accounts', methods: ['POST'])]
     public function createAccount(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
+            $data = $request->getPayload();
             $account = $this->financialService->createAccount(
-                $data['customerName'],
-                $data['accountNumber'],
-                (float) $data['balance'],
-                $data['ssn'],
-                $data['email']
+                $data->get('customerName'),
+                $data->get('accountNumber'),
+                (float) $data->get('balance'),
+                $data->get('ssn'),
+                $data->get('email')
             );
 
             return $this->successResponse([
@@ -54,20 +55,20 @@ class FinancialController extends AbstractController
         }
     }
 
-    #[Route('/api/financial/transactions', methods: ['POST'])]
+    #[Route('/api/harmony/transactions', methods: ['POST'])]
     public function createTransaction(Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
+            $data = $request->getPayload();
             $transaction = $this->financialService->createTransaction(
-                $data['accountNumber'],
-                (float) $data['amount'],
-                $data['transactionType'],
-                $data['description'],
-                $data['cardNumber'],
-                $data['cvv'],
-                $data['expiryDate'],
-                $data['merchantName']
+                $data->get('accountNumber'),
+                (float) $data->get('amount'),
+                $data->get('transactionType'),
+                $data->get('description'),
+                $data->get('cardNumber'),
+                $data->get('cvv'),
+                $data->get('expiryDate'),
+                $data->get('merchantName')
             );
 
             return $this->successResponse([
@@ -79,7 +80,7 @@ class FinancialController extends AbstractController
         }
     }
 
-    #[Route('/api/financial/accounts/balance-range', methods: ['GET'])]
+    #[Route('/api/harmony/accounts/balance-range', methods: ['GET'])]
     public function getAccountsByBalanceRange(Request $request): JsonResponse
     {
         $minBalance = (float) $request->query->get('min', 0);
@@ -102,7 +103,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/accounts/{accountNumber}', methods: ['GET'])]
+    #[Route('/api/harmony/accounts/{accountNumber}', methods: ['GET'])]
     public function getAccountByNumber(string $accountNumber): JsonResponse
     {
         $account = $this->financialService->findAccountByNumber($accountNumber);
@@ -123,7 +124,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/transactions/account/{accountNumber}', methods: ['GET'])]
+    #[Route('/api/harmony/transactions/account/{accountNumber}', methods: ['GET'])]
     public function getTransactionsByAccountNumber(string $accountNumber): JsonResponse
     {
         $transactions = $this->financialService->findTransactionsByAccountNumber($accountNumber);
@@ -145,7 +146,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/transactions/amount-range', methods: ['GET'])]
+    #[Route('/api/harmony/transactions/amount-range', methods: ['GET'])]
     public function getTransactionsByAmountRange(Request $request): JsonResponse
     {
         $minAmount = (float) $request->query->get('min', 0);
@@ -170,7 +171,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/accounts/ssn/{ssn}', methods: ['GET'])]
+    #[Route('/api/harmony/accounts/ssn/{ssn}', methods: ['GET'])]
     public function getAccountBySsn(string $ssn): JsonResponse
     {
         $account = $this->financialService->findAccountBySsn($ssn);
@@ -191,7 +192,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/accounts', methods: ['GET'])]
+    #[Route('/api/harmony/accounts', methods: ['GET'])]
     public function getAllAccounts(): JsonResponse
     {
         $accounts = $this->financialService->getAllAccounts();
@@ -211,7 +212,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/transactions', methods: ['GET'])]
+    #[Route('/api/harmony/transactions', methods: ['GET'])]
     public function getAllTransactions(): JsonResponse
     {
         $transactions = $this->financialService->getAllTransactions();
@@ -233,7 +234,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/accounts/{accountNumber}/summary', methods: ['GET'])]
+    #[Route('/api/harmony/accounts/{accountNumber}/summary', methods: ['GET'])]
     public function getAccountSummary(string $accountNumber): JsonResponse
     {
         $account = $this->financialService->findAccountByNumber($accountNumber);
@@ -262,7 +263,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/accounts/{accountNumber}/history', methods: ['GET'])]
+    #[Route('/api/harmony/accounts/{accountNumber}/history', methods: ['GET'])]
     public function getAccountBalanceHistory(string $accountNumber, Request $request): JsonResponse
     {
         $account = $this->financialService->findAccountByNumber($accountNumber);
@@ -293,7 +294,7 @@ class FinancialController extends AbstractController
         ]);
     }
 
-    #[Route('/api/financial/debug/encryption-status', methods: ['GET'])]
+    #[Route('/api/harmony/debug/encryption-status', methods: ['GET'])]
     public function getEncryptionStatus(): JsonResponse
     {
         return $this->successResponse([
