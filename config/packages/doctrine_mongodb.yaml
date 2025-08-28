@@ -5,6 +5,10 @@ doctrine_mongodb:
         default:
             server: '%env(resolve:MONGODB_URI)%'
             options: {}
+            autoEncryption:
+                kmsProvider:
+                    type: local
+                    key: '%env(MONGODB_ENCRYPTION_KEY)%'
     default_database: '%env(resolve:MONGODB_DB)%'
     document_managers:
         default:
