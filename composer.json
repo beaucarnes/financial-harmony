@@ -58,6 +58,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "reset-db": [
+            "bin/console doctrine:mongodb:schema:drop",
+            "bin/console doctrine:mongodb:schema:create",
+            "bin/console app:demo-data"
         ]
     },
     "conflict": {
