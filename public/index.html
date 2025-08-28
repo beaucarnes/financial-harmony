@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Symphony - MongoDB Queryable Encryption Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .encryption-info {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .encryption-info h3 {
+            margin-top: 0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .feature-list li:before {
+            content: "🔐 ";
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Financial Symphony</h1>
+            <p>Secure Financial Transactions with MongoDB Queryable Encryption</p>
+        </div>
+        
+        <div class="content">
+            <div class="encryption-info">
+                <h3>🔐 Encryption Features</h3>
+                <ul class="feature-list">
+                    <li>Client-side encryption of sensitive financial data</li>
+                    <li>Equality queries on encrypted account numbers and SSNs</li>
+                    <li>Range queries on encrypted balance and transaction amounts</li>
+                    <li>Secure storage with full data encryption at rest</li>
+                    <li>Server never sees decrypted sensitive data</li>
+                </ul>
+            </div>
+
+            <div class="grid">
+                <div class="section">
+                    <h2>Create Account</h2>
+                    <form id="createAccountForm">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name</label>
+                            <input type="text" id="customerName" value="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number (Encrypted)</label>
+                            <input type="text" id="accountNumber" value="1234567890" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="balance">Balance (Encrypted Range Query)</label>
+                            <input type="number" id="balance" value="50000" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ssn">SSN (Encrypted)</label>
+                            <input type="text" id="ssn" value="123-45-6789" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="john.doe@example.com" required>
+                        </div>
+                        <button type="submit">Create Account</button>
+                    </form>
+                    <div id="createAccountResult" class="result" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Create Transaction</h2>
+                    <form id="createTransactionForm">
+                        <div class="form-group">
+                            <label for="txAccountNumber">Account Number (Encrypted)</label>
+                            <input type="text" id="txAccountNumber" value="1234567890" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount (Encrypted Range Query)</label>
+                            <input type="number" id="amount" value="1500" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionType">Transaction Type</label>
+                            <select id="transactionType" required>
+                                <option value="withdrawal">Withdrawal</option>
+                                <option value="deposit">Deposit</option>
+                                <option value="transfer">Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" value="ATM withdrawal" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardNumber">Card Number (Encrypted)</label>
+                            <input type="text" id="cardNumber" value="4111111111111111">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV (Encrypted)</label>
+                            <input type="text" id="cvv" value="123">
+                        </div>
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date (Encrypted)</label>
+                            <input type="text" id="expiryDate" value="12/25">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantName">Merchant Name</label>
+                            <input type="text" id="merchantName" value="Local ATM" required>
+                        </div>
+                        <button type="submit">Create Transaction</button>
+                    </form>
+                    <div id="createTransactionResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="section">
+                    <h2>Query Accounts</h2>
+                    <div class="form-group">
+                        <label for="queryAccountNumber">Find Account by Number (Encrypted Query)</label>
+                        <input type="text" id="queryAccountNumber" value="1234567890">
+                        <button onclick="findAccountByNumber()">Find Account</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="querySsn">Find Account by SSN (Encrypted Query)</label>
+                        <input type="text" id="querySsn" value="123-45-6789">
+                        <button onclick="findAccountBySsn()">Find Account</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Find Accounts by Balance Range (Encrypted Range Query)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="minBalance" value="25000" placeholder="Min Balance">
+                            <input type="number" id="maxBalance" value="75000" placeholder="Max Balance">
+                            <button onclick="findAccountsByBalanceRange()">Find Accounts</button>
+                        </div>
+                    </div>
+                    <button onclick="getAllAccounts()">Get All Accounts</button>
+                    <div id="accountQueryResult" class="result" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Query Transactions</h2>
+                    <div class="form-group">
+                        <label for="queryTxAccountNumber">Find Transactions by Account Number (Encrypted Query)</label>
+                        <input type="text" id="queryTxAccountNumber" value="1234567890">
+                        <button onclick="findTransactionsByAccountNumber()">Find Transactions</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Find Transactions by Amount Range (Encrypted Range Query)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="minAmount" value="500" placeholder="Min Amount">
+                            <input type="number" id="maxAmount" value="2000" placeholder="Max Amount">
+                            <button onclick="findTransactionsByAmountRange()">Find Transactions</button>
+                        </div>
+                    </div>
+                    <button onclick="getAllTransactions()">Get All Transactions</button>
+                    <div id="transactionQueryResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/financial';
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, data: { message: error.message }, status: 500 };
+            }
+        }
+
+        function showResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${result.success ? 'success' : 'error'}`;
+            element.textContent = JSON.stringify(result.data, null, 2);
+        }
+
+        // Create Account
+        document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                customerName: document.getElementById('customerName').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                balance: parseFloat(document.getElementById('balance').value),
+                ssn: document.getElementById('ssn').value,
+                email: document.getElementById('email').value
+            };
+
+            const result = await makeRequest(`${API_BASE}/accounts`, {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showResult('createAccountResult', result);
+        });
+
+        // Create Transaction
+        document.getElementById('createTransactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                accountNumber: document.getElementById('txAccountNumber').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                transactionType: document.getElementById('transactionType').value,
+                description: document.getElementById('description').value,
+                cardNumber: document.getElementById('cardNumber').value,
+                cvv: document.getElementById('cvv').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                merchantName: document.getElementById('merchantName').value
+            };
+
+            const result = await makeRequest(`${API_BASE}/transactions`, {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showResult('createTransactionResult', result);
+        });
+
+        // Query Functions
+        async function findAccountByNumber() {
+            const accountNumber = document.getElementById('queryAccountNumber').value;
+            const result = await makeRequest(`${API_BASE}/accounts/${accountNumber}`);
+            showResult('accountQueryResult', result);
+        }
+
+        async function findAccountBySsn() {
+            const ssn = document.getElementById('querySsn').value;
+            const result = await makeRequest(`${API_BASE}/accounts/ssn/${ssn}`);
+            showResult('accountQueryResult', result);
+        }
+
+        async function findAccountsByBalanceRange() {
+            const min = document.getElementById('minBalance').value;
+            const max = document.getElementById('maxBalance').value;
+            const result = await makeRequest(`${API_BASE}/accounts/balance-range?min=${min}&max=${max}`);
+            showResult('accountQueryResult', result);
+        }
+
+        async function getAllAccounts() {
+            const result = await makeRequest(`${API_BASE}/accounts`);
+            showResult('accountQueryResult', result);
+        }
+
+        async function findTransactionsByAccountNumber() {
+            const accountNumber = document.getElementById('queryTxAccountNumber').value;
+            const result = await makeRequest(`${API_BASE}/transactions/account/${accountNumber}`);
+            showResult('transactionQueryResult', result);
+        }
+
+        async function findTransactionsByAmountRange() {
+            const min = document.getElementById('minAmount').value;
+            const max = document.getElementById('maxAmount').value;
+            const result = await makeRequest(`${API_BASE}/transactions/amount-range?min=${min}&max=${max}`);
+            showResult('transactionQueryResult', result);
+        }
+
+        async function getAllTransactions() {
+            const result = await makeRequest(`${API_BASE}/transactions`);
+            showResult('transactionQueryResult', result);
+        }
+    </script>
+</body>
+</html> 
