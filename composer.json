@@ -7,7 +7,8 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "doctrine/mongodb-odm-bundle": "^5.3",
+        "doctrine/mongodb-odm": "^2.12@dev",
+        "doctrine/mongodb-odm-bundle": "^5.4@dev",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
@@ -57,6 +58,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "reset-db": [
+            "bin/console doctrine:mongodb:schema:drop",
+            "bin/console doctrine:mongodb:schema:create",
+            "bin/console app:demo-data"
         ]
     },
     "conflict": {

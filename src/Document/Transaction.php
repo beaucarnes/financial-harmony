@@ -17,7 +17,7 @@ class Transaction
     private string $accountNumber;
 
     #[ODM\Field(type: 'float')]
-    #[Encrypt(queryType: EncryptQuery::Range, min: 0.0, max: 1000000.0)]
+    #[Encrypt(queryType: EncryptQuery::Range, min: 0.0, max: 1000000.0, precision: 2)]
     private float $amount;
 
     #[ODM\Field(type: 'string')]
