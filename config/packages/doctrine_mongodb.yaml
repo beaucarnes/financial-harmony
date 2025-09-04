@@ -6,6 +6,9 @@ doctrine_mongodb:
             server: '%env(resolve:MONGODB_URI)%'
             options: {}
             autoEncryption:
+                extraOptions:
+                    cryptSharedLibRequired: true
+                    cryptSharedLibPath: '%kernel.project_dir%/bin/lib/mongo_crypt_v1.dylib'
                 kmsProvider:
                     type: local
                     key: '%env(MONGODB_ENCRYPTION_KEY)%'
