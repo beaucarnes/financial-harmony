@@ -5,20 +5,17 @@ namespace App\Command;
 use App\Service\FinancialService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'app:demo-data', description: 'Populate database with demo financial data')]
-class DemoDataCommand extends Command
+class DemoDataCommand
 {
-    public function __construct(private FinancialService $financialService) {
-        parent::__construct();
-    }
+    public function __construct(
+        private FinancialService $financialService
+    ) {}
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(SymfonyStyle $io): int
     {
-        $io = new SymfonyStyle($input, $output);
         $io->title('Creating Demo Financial Data');
         
         try {
@@ -26,9 +23,11 @@ class DemoDataCommand extends Command
             $this->createTransactions($io);
             
             $io->success('Demo data created successfully!');
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error('Error creating demo data: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }
